@@ -75,6 +75,7 @@ class TransportNSWSensor(Entity):
         self._stop_id = stop_id
         self._times = self._state = None
         self._icon = ICONS[None]
+        self.gps = None
 
     @property
     def name(self):
