@@ -24,6 +24,10 @@ ATTR_DELAY = 'delay'
 ATTR_REAL_TIME = 'real_time'
 ATTR_DESTINATION = 'destination'
 ATTR_MODE = 'mode'
+ATTR_STOP_LAT = 'stop_latitude' 
+ATTR_STOP_LNG = 'stop_longitude'
+ATTR_BUS_LAT = 'bus_latitude'
+ATTR_BUS_LNG = 'bus_longitude'
 
 CONF_ATTRIBUTION = "Data provided by Transport NSW"
 CONF_STOP_ID = 'stop_id'
@@ -99,6 +103,10 @@ class TransportNSWSensor(Entity):
                 ATTR_REAL_TIME: self._times[ATTR_REAL_TIME],
                 ATTR_DESTINATION: self._times[ATTR_DESTINATION],
                 ATTR_MODE: self._times[ATTR_MODE],
+                ATTR_STOP_LAT: self._times[ATTR_STOP_LAT],
+                ATTR_STOP_LNG: self._times[ATTR_STOP_LNG],
+                ATTR_BUS_LAT: self._times[ATTR_BUS_LAT],
+                ATTR_BUS_LNG: self._times[ATTR_BUS_LNG],
                 ATTR_ATTRIBUTION: CONF_ATTRIBUTION
             }
 
@@ -119,23 +127,27 @@ class TransportNSWSensor(Entity):
         self._state = self._times[ATTR_DUE_IN]
         self._icon = ICONS[self._times[ATTR_MODE]]
 
-
 class PublicTransportData:
     """The Class for handling the data retrieval."""
 
     def __init__(self, stop_id, route, destination, api_key):
         """Initialize the data object."""
         import TransportNSW
+
         self._stop_id = stop_id
         self._route = route
         self._destination = destination
         self._api_key = api_key
-        self.info = {ATTR_ROUTE: self._route,
+        self.info = { ATTR_ROUTE: self._route,
                      ATTR_DUE_IN: 'n/a',
                      ATTR_DELAY: 'n/a',
                      ATTR_REAL_TIME: 'n/a',
                      ATTR_DESTINATION: 'n/a',
-                     ATTR_MODE: None}
+                     ATTR_MODE: None,
+                     ATTR_STOP_LAT: 'n/a', 
+                     ATTR_STOP_LNG: 'n/a',
+                     ATTR_BUS_LAT: 'n/a',
+                     ATTR_BUS_LNG: 'n/a'}
         self.tnsw = TransportNSW.TransportNSW()
 
     def update(self):
@@ -144,9 +156,22 @@ class PublicTransportData:
                                          self._route,
                                          self._destination,
                                          self._api_key)
+        # print("received departures")
+        # print(_data)
+
+        _bus_location = self.tnsw.get_bus_gps(_data,
+                                         self._api_key)
+
+        # print("received bus location")
+        # print(_bus_location)
+
         self.info = {ATTR_ROUTE: _data['route'],
                      ATTR_DUE_IN: _data['due'],
                      ATTR_DELAY: _data['delay'],
                      ATTR_REAL_TIME: _data['real_time'],
                      ATTR_DESTINATION: _data['destination'],
-                     ATTR_MODE: _data['mode']}
+                     ATTR_MODE: _data['mode'],
+                     ATTR_STOP_LAT: _data[ATTR_STOP_LAT],
+                     ATTR_STOP_LNG: _data[ATTR_STOP_LNG],
+                     ATTR_BUS_LAT: _bus_location[ATTR_BUS_LAT],
+                     ATTR_BUS_LNG: _bus_location[ATTR_BUS_LNG]}

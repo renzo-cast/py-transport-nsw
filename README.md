@@ -16,3 +16,13 @@ Get started with the Transport NSW Open Data APIs [here](https://opendata.transp
 
 
 
+Requirements:
+
+- pip3 install protobuf
+- pip3 install gtfs-realtime-bindings
+
+
+
+
+
+Copy py-transport-nsw to:  %config%\custom_components\sensor
